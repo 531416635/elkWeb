@@ -6,8 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.client.transport.TransportClient.Builder;
@@ -16,6 +20,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -54,6 +59,7 @@ public class ElkHelper implements InitializingBean {
 
 	}
 
+	// 获取账户列表
 	public List<Account> getAccount(QueryBuilder queryBuilder, Page page) {
 
 		SearchResponse response = client.prepareSearch(indices)
@@ -70,10 +76,23 @@ public class ElkHelper implements InitializingBean {
 		return accountList;
 	}
 
-	public BulkResponse delAccount(IndexRequest request) {
+	// 删除账户
+	public String delAccount(DeleteRequest request) {
 		BulkResponse BulkResponse = client.prepareBulk().add(request).get();
-		log.info(BulkResponse.toString());
-		return BulkResponse;
+		BulkItemResponse[] string = BulkResponse.getItems();
+		for (BulkItemResponse r : string) {
+			if (r.isFailed()) {
+				return "false";
+			}
+		}
+		return "true";
 	}
 
+	// 排序
+	public String sortAccounts(String field,SortOrder order) {
+		
+		client.prepareSearch().addSort(field, order);
+		
+		return null;
+	}
 }

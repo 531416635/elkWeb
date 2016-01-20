@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +31,12 @@ public class EController {
 			.getLogger(EController.class);
 
 	@RequestMapping("/getAccounts")
-	public String getAccount(Model model) {
+	public String getAccount(Model model, Page page) {
 
 		List<Account> accountList = new ArrayList<Account>();
 		QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
-		Page page = new Page();
 		page.setStartIndex(0);
-		page.setPageSize(20);
+		page.setPageSize(1000);
 		accountList = helper.getAccount(queryBuilder, page);
 		model.addAttribute("accountList", accountList);
 		return "accounts";
@@ -43,15 +44,56 @@ public class EController {
 
 	@RequestMapping("/delAccount")
 	@ResponseBody
-	public String delAccount(Model model, int id) {
-		log.info(id + "");
-		IndexRequest reqBulk = new IndexRequest();
+	public String delAccount(int id) {
+		DeleteRequest reqBulk = new DeleteRequest();
 		reqBulk.index("bank");
 		reqBulk.type("accounts");
 		reqBulk.id(id + "");
 
-		BulkResponse accountList = helper.delAccount(reqBulk);
+		String result = helper.delAccount(reqBulk);
+		return result;
+	}
 
+	@RequestMapping("/sortAccounts")
+	public String sortAccount(Page page, String name, String input) {
+		// 处理排序种类
+		SortOrder order;
+		if (("ascend").equals(name)) {
+			order = SortOrder.ASC;
+		}
+		if (("descend").equals(name)) {
+			order = SortOrder.DESC;
+		}
+		// 处理字段
+		String field;
+		if (("账户编号").equals(input)) {
+			field="account_number";
+		}else if(("地址").equals(input)){
+			field="address";
+		}else if(("年龄").equals(input)){
+			field="age";
+		}else if(("薪水").equals(input)){
+			field="balance";
+		}else if(("城市").equals(input)){
+			field="city";
+		}else if(("email").equals(input)){
+			field="email";
+		}else if(("雇主").equals(input)){
+			field="employer";
+		}else if(("firstname").equals(input)){
+			field="firstname";
+		}else if(("性别").equals(input)){
+			field="firstname";
+		}else if(("lastname").equals(input)){
+			field="gender";
+		}else if(("state").equals(input)){
+			field="state";
+		}
+		List<Account> accountList = new ArrayList<Account>();
+		QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
+		page.setStartIndex(0);
+		page.setPageSize(1000);
+		accountList = helper.sortAccounts(field, order);
 		return "accounts";
 	}
 }
