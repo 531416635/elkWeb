@@ -3,6 +3,8 @@ package com.zto.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.json.JSONArray;
+
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -17,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSON;
 import com.zto.common.ElkHelper;
 import com.zto.model.Account;
 import com.zto.model.Page;
@@ -55,9 +58,10 @@ public class EController {
 	}
 
 	@RequestMapping("/sortAccounts")
+	@ResponseBody
 	public String sortAccount(Page page, String name, String input) {
 		// 处理排序种类
-		SortOrder order;
+		SortOrder order = null;
 		if (("ascend").equals(name)) {
 			order = SortOrder.ASC;
 		}
@@ -65,35 +69,35 @@ public class EController {
 			order = SortOrder.DESC;
 		}
 		// 处理字段
-		String field;
+		String field = null;
 		if (("账户编号").equals(input)) {
-			field="account_number";
-		}else if(("地址").equals(input)){
-			field="address";
-		}else if(("年龄").equals(input)){
-			field="age";
-		}else if(("薪水").equals(input)){
-			field="balance";
-		}else if(("城市").equals(input)){
-			field="city";
-		}else if(("email").equals(input)){
-			field="email";
-		}else if(("雇主").equals(input)){
-			field="employer";
-		}else if(("firstname").equals(input)){
-			field="firstname";
-		}else if(("性别").equals(input)){
-			field="firstname";
-		}else if(("lastname").equals(input)){
-			field="gender";
-		}else if(("state").equals(input)){
-			field="state";
+			field = "account_number";
+		} else if (("地址").equals(input)) {
+			field = "address";
+		} else if (("年龄").equals(input)) {
+			field = "age";
+		} else if (("薪水").equals(input)) {
+			field = "balance";
+		} else if (("城市").equals(input)) {
+			field = "city";
+		} else if (("email").equals(input)) {
+			field = "email";
+		} else if (("雇主").equals(input)) {
+			field = "employer";
+		} else if (("firstname").equals(input)) {
+			field = "firstname";
+		} else if (("性别").equals(input)) {
+			field = "firstname";
+		} else if (("lastname").equals(input)) {
+			field = "gender";
+		} else if (("state").equals(input)) {
+			field = "state";
 		}
-		List<Account> accountList = new ArrayList<Account>();
-		QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
 		page.setStartIndex(0);
 		page.setPageSize(1000);
-		accountList = helper.sortAccounts(field, order);
-		return "accounts";
+		List<String> accountList = helper.sortAccounts(page, field, order);
+		String result = null;
+		result = JSONArray.fromObject(accountList).toString();
+		return result;
 	}
 }

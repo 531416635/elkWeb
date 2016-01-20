@@ -59,7 +59,7 @@
 		if(input1Value==""){
 			alert("请输入合理的有效值");
 		}else{
-		alert(name+input1Value);
+		
 		$.ajax({
 			dataType : "text",
 			async : false,
@@ -67,7 +67,30 @@
 			url : "sortAccounts",
 			data:{name:name,input:input1Value},
             success: function(data){
-            	var str=data;
+            	var str=eval('('+data+')');
+            	alert(str)
+            	var result="";
+            	for ( var i in str) {
+            		var str1=eval('('+str[i]+')')
+            	 result+=" <tr>"
+					+"<td>"+str1.account_number+"</td>"
+					+"<td>"+str1.address+"</td>"
+					+"<td>"+str1.age+"</td>"
+					+"<td>"+str1.balance+"</td>"
+					+"<td>"+str1.city+"</td>"
+					+"<td>"+str1.email+"</td>"
+					+"<td>"+str1.employer+"</td>"
+					+"<td>"+str1.firstname+"</td>"
+					+"<td>"+str1.gender+"</td>"
+					+"<td>"+str1.grade+"</td>"
+					+"<td>"+str1.lastname+"</td>"
+					+"<td>"+str1.state+"</td>"
+					+"<td><button id='del"+str1.account_number +"'"
+					+"		onclick='del("+str1.account_number +")'>删除</button></td>"
+					+"</tr>"
+				}
+            	alert(result);
+            	$("#tbody").replacewith(result);
 		 }
         });
 	}}
@@ -102,24 +125,26 @@
 			<th>state</th>
 			<th>操作</th>
 		</tr>
-		<c:forEach items="${accountList }" var="account">
-			<tr>
-				<td>${account.account_number }</td>
-				<td>${account.address }</td>
-				<td>${account.age }</td>
-				<td>${account.balance }</td>
-				<td>${account.city }</td>
-				<td>${account.email }</td>
-				<td>${account.employer }</td>
-				<td>${account.firstname }</td>
-				<td>${account.gender }</td>
-				<td>${account.grade }</td>
-				<td>${account.lastname }</td>
-				<td>${account.state }</td>
-				<td><button id="del${account.account_number }"
-						onclick="del(${account.account_number })">删除</button></td>
-			</tr>
-		</c:forEach>
+		<tbody id="tbody">
+			<c:forEach items="${accountList }" var="account">
+				<tr>
+					<td>${account.account_number }</td>
+					<td>${account.address }</td>
+					<td>${account.age }</td>
+					<td>${account.balance }</td>
+					<td>${account.city }</td>
+					<td>${account.email }</td>
+					<td>${account.employer }</td>
+					<td>${account.firstname }</td>
+					<td>${account.gender }</td>
+					<td>${account.grade }</td>
+					<td>${account.lastname }</td>
+					<td>${account.state }</td>
+					<td><button id="del${account.account_number }"
+							onclick="del(${account.account_number })">删除</button></td>
+				</tr>
+			</c:forEach>
+		</tbody>
 	</table>
 </body>
 </html>

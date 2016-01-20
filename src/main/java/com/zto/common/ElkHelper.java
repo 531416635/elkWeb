@@ -89,10 +89,16 @@ public class ElkHelper implements InitializingBean {
 	}
 
 	// 排序
-	public String sortAccounts(String field,SortOrder order) {
+	public List<String> sortAccounts(Page page, String field, SortOrder order) {
+		List<String> result = new ArrayList<String>();
+		SearchResponse response = client.prepareSearch().addSort(field, order)
+				.setFrom(page.getStartIndex()).setSize(page.getPageSize())
+				.get();
+		SearchHits hits = response.getHits();
+		for (SearchHit hit : hits) {
+			result.add(hit.sourceAsString());
+		}
 		
-		client.prepareSearch().addSort(field, order);
-		
-		return null;
+		return result;
 	}
 }
