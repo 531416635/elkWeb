@@ -18,18 +18,18 @@ import com.zto.model.Page;
 @RequestMapping("/accounts")
 public class EController {
 
-/*	@Autowired
-	ElkHelper helper;*/
+	@Autowired
+	ElkHelper helper;
 
 	@RequestMapping("/getAccounts")
 	public String getAccount(Model model) {
-		ElkHelper helper=new ElkHelper();
+	/*	ElkHelper helper=new ElkHelper();
 		try {
 			helper.afterPropertiesSet();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		List<Account> accountList = new ArrayList<Account>();
 		QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
 		Page page = new Page();
