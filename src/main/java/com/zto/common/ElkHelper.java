@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.client.transport.TransportClient.Builder;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.zto.model.Account;
 import com.zto.model.Page;
+
 @Component("elkHelper")
 public class ElkHelper implements InitializingBean {
 	private static TransportClient client = null;
@@ -65,6 +68,12 @@ public class ElkHelper implements InitializingBean {
 
 		}
 		return accountList;
+	}
+
+	public BulkResponse delAccount(IndexRequest request) {
+		BulkResponse BulkResponse = client.prepareBulk().add(request).get();
+		log.info(BulkResponse.toString());
+		return BulkResponse;
 	}
 
 }

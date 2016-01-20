@@ -24,7 +24,7 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
 	<mvc:annotation-driven />
-
+	<mvc:resources location="/jquery/" mapping="/jquery/**" />
 	<bean id="conversionService"
 		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
 	</bean>

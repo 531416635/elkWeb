@@ -14,11 +14,37 @@
 	String productId = request.getParameter("ProductId");
 	String jsonAddrs = (String) request.getAttribute("jsonAddrs");
 %>
+<script type="text/javascript"
+	src="<%=path%>/jquery/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+	function aclick() {
+		alert("ee");
+	}
+	function edit(id){
+		alert(id);
+		
+	}
+	function del(id){
+		$.ajax({
+			dataType : "text",
+			async : false,
+			type : "POST",
+			url : "delAccount",
+			data:{id:id},
+			
+            success: function(data){
+            	alert(id);
+ }
+        });
+	}
+</script>
 </head>
 <body>
+	<%=path%>
+	<input type="button" onclick="aclick();" name="name" value="tijiao" />
 	<table>
 		<tr>
-			<th colspan="13">账户信息管理</th>
+			<th id="thid" colspan="13">账户信息管理</th>
 		</tr>
 		<tr>
 			<td>账户编号</td>
@@ -49,7 +75,10 @@
 				<td>${account.grade }</td>
 				<td>${account.lastname }</td>
 				<td>${account.state }</td>
-				<td></td>
+				<td><span id="edit${account.account_number }"
+					onclick="edit(${account.account_number })">修改</span><span
+					id="del${account.account_number }"
+					onclick="del(${account.account_number })">删除</span></td>
 			</tr>
 		</c:forEach>
 	</table>
