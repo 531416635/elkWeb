@@ -17,9 +17,14 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.client.transport.TransportClient.Builder;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,20 +65,53 @@ public class ElkHelper implements InitializingBean {
 	}
 
 	// 获取账户列表
-	public List<Account> getAccount(QueryBuilder queryBuilder, Page page) {
-
+	public SearchResponse getAccount(QueryBuilder queryBuilder, Page page) {
 		SearchResponse response = client.prepareSearch(indices)
 				.setQuery(queryBuilder).setFrom(page.getStartIndex())
-				.setSize(page.getPageSize()).execute().actionGet();
-		SearchHits hits = response.getHits();
-		List<Account> accountList = new ArrayList<Account>();
-		for (SearchHit hit : hits) {
-			Account account = JSON.parseObject(
-					new String(hit.sourceAsString()), Account.class);
-			accountList.add(account);
+				.setSize(page.getPageSize())
+				.addAggregation(getMax("ageMax", "age"))
+				.addAggregation(getMax("balanceMax", "balance"))
+				.addAggregation(getMax("gradeMax", "grade"))
+				.addAggregation(getMin("ageMin", "age"))
+				.addAggregation(getMin("balanceMin", "balance"))
+				.addAggregation(getMin("gradeMin", "grade"))
+				.addAggregation(getAvg("ageAvg", "age"))
+				.addAggregation(getAvg("balanceAvg", "balance"))
+				.addAggregation(getAvg("gradeAvg", "grade"))
+				.addAggregation(getStats("ageStats", "age"))
+				.addAggregation(getStats("balanceStats", "balance"))
+				.addAggregation(getStats("gradeStats", "grade")).execute()
+				.actionGet();
+		return response;
+	}
 
-		}
-		return accountList;
+	// 最小值
+	public MetricsAggregationBuilder<?> getMin(String minName, String fieldName) {
+		MetricsAggregationBuilder<?> Min = AggregationBuilders.min(minName)
+				.field(fieldName);
+		return Min;
+	}
+
+	// 最大值
+	public MetricsAggregationBuilder<?> getMax(String maxName, String fieldName) {
+		MetricsAggregationBuilder<?> Max = AggregationBuilders.max(maxName)
+				.field(fieldName);
+		return Max;
+	}
+
+	// 平均值
+	public MetricsAggregationBuilder<?> getAvg(String avgName, String fieldName) {
+		MetricsAggregationBuilder<?> Avg = AggregationBuilders.avg(avgName)
+				.field(fieldName);
+		return Avg;
+	}
+
+	// 统计 --这个最厉害---最小值、最大值、平均值、总和、数量
+	public MetricsAggregationBuilder<?> getStats(String statsName,
+			String fieldName) {
+		MetricsAggregationBuilder<?> Stats = AggregationBuilders.stats(statsName)
+				.field(fieldName);
+		return Stats;
 	}
 
 	// 删除账户
@@ -98,7 +136,7 @@ public class ElkHelper implements InitializingBean {
 		for (SearchHit hit : hits) {
 			result.add(hit.sourceAsString());
 		}
-		
+
 		return result;
 	}
 }

@@ -28,7 +28,7 @@ public class EsTest {
 		Page page = new Page();
 		page.setStartIndex(0);
 		page.setPageSize(20);
-		List<Account> litAccounts = helper.getAccount(queryBuilder, page);
-		System.out.println(litAccounts);
+	//	List<Account> litAccounts = helper.getAccount(queryBuilder, page);
+	//	System.out.println(litAccounts);
 	}
 }

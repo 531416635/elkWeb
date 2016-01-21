@@ -68,7 +68,7 @@
 			data:{name:name,input:input1Value},
             success: function(data){
             	var str=eval('('+data+')');
-            	alert(str)
+            
             	var result="";
             	for ( var i in str) {
             		var str1=eval('('+str[i]+')')
@@ -86,17 +86,19 @@
 					+"<td>"+str1.lastname+"</td>"
 					+"<td>"+str1.state+"</td>"
 					+"<td><button id='del"+str1.account_number +"'"
-					+"		onclick='del("+str1.account_number +")'>删除</button></td>"
+					+"onclick='del("+str1.account_number +")'>删除</button></td>"
 					+"</tr>"
 				}
-            	alert(result);
-            	$("#tbody").replacewith(result);
+            	$("#tbody").html(result);
 		 }
         });
 	}}
 </script>
 </head>
 <body>
+	<div>
+		<h1 style="text-align: center;">账户信息管理</h1>
+	</div>
 	<div>
 		默认排序：
 		<button onclick="window.location.href='/elkWeb/accounts/getAccounts'">无序</button>
@@ -106,10 +108,48 @@
 		<button id="ascend">升序</button>
 		<button id="descend">降序</button>
 	</div>
+	<div>
+		<table style="text-align: center;">
+			<tr>
+				<td bgcolor="red">本页面内</td>
+				<td width="150px">年龄</td>
+				<td width="150px">薪水</td>
+				<td width="150px">级别</td>
+			</tr>
+			<tr>
+				<td>最大值</td>
+				<td>${maxList.ageMax }</td>
+				<td>${maxList.balanceMax }</td>
+				<td>${maxList.gradeMax }</td>
+			</tr>
+			<tr>
+				<td>最小值</td>
+				<td>${minList.ageMin }</td>
+				<td>${minList.balanceMin }</td>
+				<td>${minList.gradeMin }</td>
+			</tr>
+			<tr>
+				<td>平均值</td>
+				<td>${avgList.ageAvg }</td>
+				<td>${avgList.balanceAvg }</td>
+				<td>${avgList.gradeAvg }</td>
+			</tr>
+			<tr>
+				<td>总个数</td>
+				<td>${countList.ageCount }</td>
+				<td>${countList.balanceCount }</td>
+				<td>${countList.gradeCount }</td>
+			</tr>
+			<tr>
+				<td>总和</td>
+				<td>${sumList.ageSum }</td>
+				<td>${sumList.balanceSum }</td>
+				<td>${sumList.gradeSum }</td>
+			</tr>
+		</table>
+	</div>
+	<div></div>
 	<table>
-		<tr>
-			<th id="thid" colspan="13">账户信息管理</th>
-		</tr>
 		<tr>
 			<th>账户编号</th>
 			<th>地址</th>

@@ -1,15 +1,24 @@
 package com.zto.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.json.JSONArray;
 
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.metrics.avg.Avg;
+import org.elasticsearch.search.aggregations.metrics.max.Max;
+import org.elasticsearch.search.aggregations.metrics.min.Min;
+import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +45,60 @@ public class EController {
 	@RequestMapping("/getAccounts")
 	public String getAccount(Model model, Page page) {
 
-		List<Account> accountList = new ArrayList<Account>();
 		QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
 		page.setStartIndex(0);
 		page.setPageSize(1000);
-		accountList = helper.getAccount(queryBuilder, page);
+		SearchResponse response = helper.getAccount(queryBuilder, page);
+		// 取出返回结果中的文档
+		SearchHits hits = response.getHits();
+		List<Account> accountList = new ArrayList<Account>();
+		for (SearchHit hit : hits) {
+			Account account = JSON.parseObject(
+					new String(hit.sourceAsString()), Account.class);
+			accountList.add(account);
+		}
 		model.addAttribute("accountList", accountList);
+		// 取出聚合函数中的最大值、最小值、平均值
+		Map<String, Object> maxList = new HashMap<String, Object>();
+		Map<String, Object> minList = new HashMap<String, Object>();
+		Map<String, Object> avgList = new HashMap<String, Object>();
+		Map<String, Object> sumList = new HashMap<String, Object>();
+		Map<String, Object> countList = new HashMap<String, Object>();
+		Aggregations aggsMax = response.getAggregations();
+		List<Aggregation> listAgg = aggsMax.asList();
+		for (int i = 0; i < listAgg.size(); i++) {
+			String name = listAgg.get(i).getName();
+			// log.info(name.substring(name.length() - 3, name.length()));
+			if (name.substring(name.length() - 3, name.length()).equals("Max")) {
+				Max max = (Max) listAgg.get(i);
+				maxList.put(max.getName(), max.getValue());
+			} else if (name.substring(name.length() - 3, name.length()).equals(
+					"Min")) {
+				Min min = (Min) listAgg.get(i);
+				minList.put(min.getName(), min.getValue());
+			} else if (name.substring(name.length() - 3, name.length()).equals(
+					"Avg")) {
+				Avg avg = (Avg) listAgg.get(i);
+				avgList.put(avg.getName(), new java.text.DecimalFormat("#.00")
+						.format(avg.getValue()));
+			} else if (name.substring(name.length() - 5, name.length()).equals(
+					"Stats")) {
+				// stats比较厉害，什么都可以取出来----最小值、最大值、平均值、总和、数量
+				Stats stats = (Stats) listAgg.get(i);
+				sumList.put(name.substring(0, name.length() - 5) + "Sum",
+						stats.getSum());
+				countList.put(name.substring(0, name.length() - 5) + "Count",
+						stats.getCount());
+			}
+
+		}
+		model.addAttribute("maxList", maxList);
+		model.addAttribute("minList", minList);
+		model.addAttribute("avgList", avgList);
+		model.addAttribute("sumList", sumList);
+		log.info(sumList.toString());
+		model.addAttribute("countList", countList);
+		log.info(countList.toString());
 		return "accounts";
 	}
 
@@ -87,9 +144,11 @@ public class EController {
 		} else if (("firstname").equals(input)) {
 			field = "firstname";
 		} else if (("性别").equals(input)) {
-			field = "firstname";
-		} else if (("lastname").equals(input)) {
 			field = "gender";
+		} else if (("级别").equals(input)) {
+			field = "grade";
+		} else if (("lastname").equals(input)) {
+			field = "lastname";
 		} else if (("state").equals(input)) {
 			field = "state";
 		}
