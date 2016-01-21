@@ -2,24 +2,20 @@ package com.zto.common;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.client.transport.TransportClient.Builder;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -29,12 +25,8 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
-import com.zto.model.Account;
 import com.zto.model.Page;
 
 @Component("elkHelper")
@@ -64,7 +56,13 @@ public class ElkHelper implements InitializingBean {
 
 	}
 
-	// 获取账户列表
+	/**
+	 * 获取账户列表
+	 * 
+	 * @param queryBuilder
+	 * @param page
+	 * @return SearchResponse
+	 */
 	public SearchResponse getAccount(QueryBuilder queryBuilder, Page page) {
 		SearchResponse response = client.prepareSearch(indices)
 				.setQuery(queryBuilder).setFrom(page.getStartIndex())
@@ -85,36 +83,65 @@ public class ElkHelper implements InitializingBean {
 		return response;
 	}
 
-	// 最小值
+	/**
+	 * 最小值
+	 * 
+	 * @param minName
+	 * @param fieldName
+	 * @return MetricsAggregationBuilder
+	 */
 	public MetricsAggregationBuilder<?> getMin(String minName, String fieldName) {
 		MetricsAggregationBuilder<?> Min = AggregationBuilders.min(minName)
 				.field(fieldName);
 		return Min;
 	}
 
-	// 最大值
+	/**
+	 * 最大值
+	 * 
+	 * @param maxName
+	 * @param fieldName
+	 * @return MetricsAggregationBuilder
+	 */
 	public MetricsAggregationBuilder<?> getMax(String maxName, String fieldName) {
 		MetricsAggregationBuilder<?> Max = AggregationBuilders.max(maxName)
 				.field(fieldName);
 		return Max;
 	}
 
-	// 平均值
+	/**
+	 * 平均值
+	 * 
+	 * @param avgName
+	 * @param fieldName
+	 * @return MetricsAggregationBuilder
+	 */
 	public MetricsAggregationBuilder<?> getAvg(String avgName, String fieldName) {
 		MetricsAggregationBuilder<?> Avg = AggregationBuilders.avg(avgName)
 				.field(fieldName);
 		return Avg;
 	}
 
-	// 统计 --这个最厉害---最小值、最大值、平均值、总和、数量
+	/**
+	 * 统计 --这个最厉害---最小值、最大值、平均值、总和、数量
+	 * 
+	 * @param statsName
+	 * @param fieldName
+	 * @return MetricsAggregationBuilder
+	 */
 	public MetricsAggregationBuilder<?> getStats(String statsName,
 			String fieldName) {
-		MetricsAggregationBuilder<?> Stats = AggregationBuilders.stats(statsName)
-				.field(fieldName);
+		MetricsAggregationBuilder<?> Stats = AggregationBuilders.stats(
+				statsName).field(fieldName);
 		return Stats;
 	}
 
-	// 删除账户
+	/**
+	 * 删除账户
+	 * 
+	 * @param request
+	 * @return String
+	 */
 	public String delAccount(DeleteRequest request) {
 		BulkResponse BulkResponse = client.prepareBulk().add(request).get();
 		BulkItemResponse[] string = BulkResponse.getItems();
@@ -126,7 +153,14 @@ public class ElkHelper implements InitializingBean {
 		return "true";
 	}
 
-	// 排序
+	/**
+	 * 排序
+	 * 
+	 * @param page
+	 * @param field
+	 * @param order
+	 * @return List<String>
+	 */
 	public List<String> sortAccounts(Page page, String field, SortOrder order) {
 		List<String> result = new ArrayList<String>();
 		SearchResponse response = client.prepareSearch().addSort(field, order)
@@ -139,4 +173,49 @@ public class ElkHelper implements InitializingBean {
 
 		return result;
 	}
+
+	/**
+	 * bucket聚合函数的主方法
+	 * 
+	 * @param page
+	 * @return SearchResponse
+	 */
+	public SearchResponse getBucket(Page page) {
+
+		SearchResponse response = client.prepareSearch(indices)
+				.setQuery(QueryBuilders.matchAllQuery())
+				.setFrom(page.getStartIndex()).setSize(page.getPageSize())
+				.execute().actionGet();
+		return response;
+	}
+
+	/**
+	 * filter aggregation 单个过滤的聚合函数
+	 * 
+	 * @param page
+	 * @param filterName
+	 * @param fieldName
+	 * @param fieldValue
+	 * @return SearchResponse
+	 */
+	public SearchResponse filter(Page page, String filterName,
+			String fieldName, String fieldValue, String type) {
+		FilterAggregationBuilder builder = null;
+		if (("fuzzy").equals(type)) {
+			builder = AggregationBuilders.filter(filterName).filter(
+					QueryBuilders.fuzzyQuery(fieldName, fieldValue));
+		} else if (("term").equals(type)) {
+			builder = AggregationBuilders.filter(filterName).filter(
+					QueryBuilders.termQuery(fieldName, fieldValue));
+		}
+		SearchResponse response = null;
+		// XContentBuilder mapping = XContentFactory. 
+		client.
+		response = client.prepareSearch(indices).setTypes(types)
+				.addAggregation(builder).setFrom(page.getStartIndex())
+				.setSize(page.getPageSize()).execute().actionGet();
+
+		return response;
+	}
+
 }

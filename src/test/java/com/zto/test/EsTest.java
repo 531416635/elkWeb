@@ -28,7 +28,20 @@ public class EsTest {
 		Page page = new Page();
 		page.setStartIndex(0);
 		page.setPageSize(20);
-	//	List<Account> litAccounts = helper.getAccount(queryBuilder, page);
-	//	System.out.println(litAccounts);
+		// List<Account> litAccounts = helper.getAccount(queryBuilder, page);
+		// System.out.println(litAccounts);
 	}
+
+	@Test
+	public void filter() {
+		Page page = new Page();
+		page.setStartIndex(0);
+		page.setPageSize(10);
+		String filterName = "filterName";
+		String fieldName = "account_number";
+		String fieldValue = "183";
+		String type = "term";
+		helper.filter(page, filterName, fieldName, fieldValue, type);
+	}
+
 }

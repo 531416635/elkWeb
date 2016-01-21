@@ -17,13 +17,7 @@
 <script type="text/javascript"
 	src="<%=path%>/jquery/jquery-1.10.2.min.js"></script>
 <script type="text/javascript">
-	function aclick() {
-		alert("ee");
-	}
-	function edit(id){
-		alert(id);
-		
-	}
+
 	function del(id){
 		$.ajax({
 			dataType : "text",
@@ -68,7 +62,7 @@
 			data:{name:name,input:input1Value},
             success: function(data){
             	var str=eval('('+data+')');
-            
+            alert(str);
             	var result="";
             	for ( var i in str) {
             		var str1=eval('('+str[i]+')')
@@ -97,7 +91,8 @@
 </head>
 <body>
 	<div>
-		<h1 style="text-align: center;">账户信息管理</h1>
+		<h1 style="text-align: center;">账户信息管理--权值聚合函数（metrics
+			aggregation）</h1>
 	</div>
 	<div>
 		默认排序：
@@ -148,7 +143,7 @@
 			</tr>
 		</table>
 	</div>
-	<div></div>
+	<div>&nbsp;</div>
 	<table>
 		<tr>
 			<th>账户编号</th>

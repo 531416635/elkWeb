@@ -42,6 +42,13 @@ public class EController {
 	private static final Logger log = LoggerFactory
 			.getLogger(EController.class);
 
+	/**
+	 * 获取账户信息
+	 * 
+	 * @param model
+	 * @param page
+	 * @return String
+	 */
 	@RequestMapping("/getAccounts")
 	public String getAccount(Model model, Page page) {
 
@@ -69,20 +76,21 @@ public class EController {
 		for (int i = 0; i < listAgg.size(); i++) {
 			String name = listAgg.get(i).getName();
 			// log.info(name.substring(name.length() - 3, name.length()));
-			if (name.substring(name.length() - 3, name.length()).equals("Max")) {
+			if (("Max")
+					.equals(name.substring(name.length() - 3, name.length()))) {
 				Max max = (Max) listAgg.get(i);
 				maxList.put(max.getName(), max.getValue());
-			} else if (name.substring(name.length() - 3, name.length()).equals(
-					"Min")) {
+			} else if (("Min").equals(name.substring(name.length() - 3,
+					name.length()))) {
 				Min min = (Min) listAgg.get(i);
 				minList.put(min.getName(), min.getValue());
-			} else if (name.substring(name.length() - 3, name.length()).equals(
-					"Avg")) {
+			} else if (("Avg").equals(name.substring(name.length() - 3,
+					name.length()))) {
 				Avg avg = (Avg) listAgg.get(i);
 				avgList.put(avg.getName(), new java.text.DecimalFormat("#.00")
 						.format(avg.getValue()));
-			} else if (name.substring(name.length() - 5, name.length()).equals(
-					"Stats")) {
+			} else if (("Stats").equals(name.substring(name.length() - 5,
+					name.length()))) {
 				// stats比较厉害，什么都可以取出来----最小值、最大值、平均值、总和、数量
 				Stats stats = (Stats) listAgg.get(i);
 				sumList.put(name.substring(0, name.length() - 5) + "Sum",
@@ -102,6 +110,12 @@ public class EController {
 		return "accounts";
 	}
 
+	/**
+	 * 删除账户信息
+	 * 
+	 * @param id
+	 * @return String
+	 */
 	@RequestMapping("/delAccount")
 	@ResponseBody
 	public String delAccount(int id) {
@@ -114,6 +128,14 @@ public class EController {
 		return result;
 	}
 
+	/**
+	 * 排序
+	 * 
+	 * @param page
+	 * @param name
+	 * @param input
+	 * @return String
+	 */
 	@RequestMapping("/sortAccounts")
 	@ResponseBody
 	public String sortAccount(Page page, String name, String input) {
