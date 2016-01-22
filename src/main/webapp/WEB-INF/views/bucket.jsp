@@ -102,6 +102,24 @@
 	function prep(t) {
 		$("#div" + t).remove();
 	}
+
+	function missingAggs() {
+		var str = $("#Missingselect").val().trim();
+		var str1 = $("#Missingselect option:selected").text().trim();
+		$.ajax({
+			dataType : "text",
+			async : false,
+			type : "POST",
+			url : "missingAccount",
+			data : {
+				str : str
+			},
+			success : function(data) {
+				alert("查询【" + str1 + "】的missing文档数为：" + data);
+			}
+
+		});
+	}
 </script>
 </head>
 <body>
@@ -159,6 +177,25 @@
 		<button id="add" onclick="add()">+</button>
 		<div id="filters"></div>
 	</div>
+	<div>
+		<span style="color: red;">Missing aggs:</span><br> 选择字段:<select
+			id="Missingselect">
+			<option value="account_number">账户编号</option>
+			<option value="address">地址</option>
+			<option value="age">年龄</option>
+			<option value="balance">薪水</option>
+			<option value="city">城市</option>
+			<option value="email">email</option>
+			<option value="employer">雇主</option>
+			<option value="firstname">firstname</option>
+			<option value="gender">性别</option>
+			<option value="grade">年龄</option>
+			<option value="lastname">lastname</option>
+			<option value="state">state</option>
+		</select>
+		<button id="filterbutton" onclick="missingAggs();">查询</button>
+	</div>
+
 	<div>&nbsp;</div>
 	<table>
 		<tr>

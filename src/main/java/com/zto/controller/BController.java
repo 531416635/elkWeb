@@ -14,6 +14,7 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.filters.Filters;
+import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,5 +97,18 @@ public class BController {
 		}
 		result = result.subSequence(0, result.length() - 1) + "}";
 		return result;
+	}
+
+	@RequestMapping("/missingAccount")
+	@ResponseBody
+	public String missingAccount(Page page, String str) {
+		String result = "";
+		page.setStartIndex(0);
+		page.setPageSize(1000);
+		SearchResponse response = helper.missing(page, str);
+		Missing agg = response.getAggregations().get("missing");
+		result = agg.getDocCount() + "";
+		return result;
+
 	}
 }

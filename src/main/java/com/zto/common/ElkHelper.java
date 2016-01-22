@@ -26,7 +26,9 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.missing.MissingBuilder;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.min.MinBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,6 +228,13 @@ public class ElkHelper implements InitializingBean {
 		return response;
 	}
 
+	/**
+	 * filters aggregation 多个过滤的聚合函数
+	 * 
+	 * @param page
+	 * @param filtersAttr
+	 * @return SearchResponse
+	 */
 	public SearchResponse filters(Page page, List<FiltersAttr> filtersAttr) {
 		SearchResponse response = null;
 		FiltersAggregationBuilder builder = AggregationBuilders
@@ -242,6 +251,20 @@ public class ElkHelper implements InitializingBean {
 
 		}
 		response = client.prepareSearch(indices).setTypes(types)
+				.addAggregation(builder).setFrom(page.getStartIndex())
+				.setSize(page.getPageSize()).execute().actionGet();
+		return response;
+	}
+
+	/**
+	 * 
+	 * @param page
+	 * @param filtersAttr
+	 * @return
+	 */
+	public SearchResponse missing(Page page, String str) {
+		MissingBuilder builder = AggregationBuilders.missing("missing").field(str);
+		SearchResponse response = client.prepareSearch(indices).setTypes(types)
 				.addAggregation(builder).setFrom(page.getStartIndex())
 				.setSize(page.getPageSize()).execute().actionGet();
 		return response;
