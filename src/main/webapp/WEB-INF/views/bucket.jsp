@@ -18,52 +18,90 @@
 	src="<%=path%>/jquery/jquery-1.10.2.min.js"></script>
 <script type="text/javascript">
 	$(function() {
-		$("#filterbutton").click(
+		$("#filterbutton").click(function() {
+			var field = $("#fieldselect").val().trim();
+			var type = $("#typeselect").val().trim();
+			var inputext = $("#filtertext").val().trim();
+			$.ajax({
+				dataType : "text",
+				async : false,
+				type : "POST",
+				url : "filterAccount",
+				data : {
+					field : field,
+					type : type,
+					inputext : inputext
+				},
+				success : function(data) {
+					alert("匹配的文档数量：" + data);
+				}
+			});
+		});
+
+		$("#filtersbutton").click(
 				function() {
-					var field = $("#fieldselect").val().trim();
-					var type = $("#typeselect").val().trim();
-					var inputext = $("#filtertext").val().trim();
+					var list = "";
+					var field = $(".filtersFieldSpan").text().split(" ");
+					var field1 = $(".filtersTypeSpan").text().split(" ");
+					var field2 = $(".filterstextSpan").text().split(" ");
+					for (var e = 0; e < field.length - 1; e++) {
+						if (e < field.length - 2) {
+							list += "{\"field\":\"" + field[e]
+									+ "\",\"type\":\"" + field1[e]
+									+ "\",\"text\":\"" + field2[e] + "\"}="
+						} else {
+							list += "{\"field\":\"" + field[e]
+									+ "\",\"type\":\"" + field1[e]
+									+ "\",\"text\":\"" + field2[e] + "\"}"
+						}
+
+					}
+					list += "";
 					$.ajax({
 						dataType : "text",
 						async : false,
 						type : "POST",
-						url : "filterAccount",
+						url : "filtersAccount",
 						data : {
-							field : field,
-							type : type,
-							inputext : inputext
+							list : list,
 						},
 						success : function(data) {
-							var str = eval('(' + data + ')');
-							var result = "";
-							for ( var i in str) {
-								var str1 = eval('(' + str[i] + ')')
-								result += " <tr>" + "<td>"
-										+ str1.account_number + "</td>"
-										+ "<td>" + str1.address + "</td>"
-										+ "<td>" + str1.age + "</td>" + "<td>"
-										+ str1.balance + "</td>" + "<td>"
-										+ str1.city + "</td>" + "<td>"
-										+ str1.email + "</td>" + "<td>"
-										+ str1.employer + "</td>" + "<td>"
-										+ str1.firstname + "</td>" + "<td>"
-										+ str1.gender + "</td>" + "<td>"
-										+ str1.grade + "</td>" + "<td>"
-										+ str1.lastname + "</td>" + "<td>"
-										+ str1.state + "</td>"
-										+ "<td><button id='del"
-										+ str1.account_number + "'"
-										+ "onclick='del(" + str1.account_number
-										+ ")'>删除</button></td>" + "</tr>"
+							var str = eval("(" + data + ")");
+							for ( var item in str) {
+								var tr = Number(item) + 1;
+								$("#div" + tr).append(
+										"<span style='color:red;'>得到的文档数："
+												+ str[item] + "</span>");
 							}
-							$("#tbody").html(result);
-						},
-						error : function(e) {
-							alert("hello jquery");
 						}
 					});
 				})
 	})
+	var i = 0;
+	function add() {
+		i = i + 1;
+		var field = $("#filtersField").val();
+		var fieldValue = $("#filtersField option:selected").text();
+		var text = $("#filterstext").val();
+		var type = $("#filtersType").val();
+		var str = "<div id='div"+i+"'><span class='filtersFieldSpan' style='display:none'>"
+				+ field
+				+ " </span>字段：<span>"
+				+ fieldValue
+				+ "</span>"
+				+ " 类型：<span class='filtersTypeSpan'>"
+				+ type
+				+ " </span> 信息：<span class='filterstextSpan'>"
+				+ text
+				+ " </span><button id='prep' onclick='prep("
+				+ i
+				+ ")'>-</button></div>";
+		$("#filters").append(str);
+		$("#filterstext").val("");
+	}
+	function prep(t) {
+		$("#div" + t).remove();
+	}
 </script>
 </head>
 <body>
@@ -95,6 +133,31 @@
 			<option value="fuzzy">模糊</option>
 		</select>输入查询信息：<input id="filtertext" type="text">
 		<button id="filterbutton">查询</button>
+	</div>
+
+	<div>
+		<span style="color: red;">Filters aggs:</span>
+		<button id="filtersbutton"
+			style="width: 200px; background-color: #25f52e;">查询</button>
+		<br> 选择字段:<select id="filtersField">
+			<option value="account_number">账户编号</option>
+			<option value="address">地址</option>
+			<option value="age">年龄</option>
+			<option value="balance">薪水</option>
+			<option value="city">城市</option>
+			<option value="email">email</option>
+			<option value="employer">雇主</option>
+			<option value="firstname">firstname</option>
+			<option value="gender">性别</option>
+			<option value="grade">年龄</option>
+			<option value="lastname">lastname</option>
+			<option value="state">state</option>
+		</select> 类型：<select id="filtersType">
+			<option value="term">精确</option>
+			<option value="fuzzy">模糊</option>
+		</select>输入查询信息：<input id="filterstext" type="text">
+		<button id="add" onclick="add()">+</button>
+		<div id="filters"></div>
 	</div>
 	<div>&nbsp;</div>
 	<table>
@@ -128,7 +191,6 @@
 					<td>${account.grade }</td>
 					<td>${account.lastname }</td>
 					<td>${account.state }</td>
-
 				</tr>
 			</c:forEach>
 		</tbody>

@@ -3,7 +3,11 @@ package com.zto.common;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
+
+import net.sf.json.JSONArray;
 
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -13,6 +17,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.client.transport.TransportClient.Builder;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -20,6 +25,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
@@ -27,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import com.zto.model.FiltersAttr;
 import com.zto.model.Page;
 
 @Component("elkHelper")
@@ -202,15 +209,16 @@ public class ElkHelper implements InitializingBean {
 			String fieldName, String fieldValue, String type) {
 		FilterAggregationBuilder builder = null;
 		if (("fuzzy").equals(type)) {
+			Fuzziness fuzziness = Fuzziness.AUTO;
 			builder = AggregationBuilders.filter(filterName).filter(
-					QueryBuilders.fuzzyQuery(fieldName, fieldValue));
+					QueryBuilders.fuzzyQuery(fieldName, fieldValue).fuzziness(
+							fuzziness));
 		} else if (("term").equals(type)) {
 			builder = AggregationBuilders.filter(filterName).filter(
 					QueryBuilders.termQuery(fieldName, fieldValue));
 		}
 		SearchResponse response = null;
-		// XContentBuilder mapping = XContentFactory. 
-		client.
+		QueryBuilder er = QueryBuilders.matchAllQuery();
 		response = client.prepareSearch(indices).setTypes(types)
 				.addAggregation(builder).setFrom(page.getStartIndex())
 				.setSize(page.getPageSize()).execute().actionGet();
@@ -218,4 +226,24 @@ public class ElkHelper implements InitializingBean {
 		return response;
 	}
 
+	public SearchResponse filters(Page page, List<FiltersAttr> filtersAttr) {
+		SearchResponse response = null;
+		FiltersAggregationBuilder builder = AggregationBuilders
+				.filters("flitersname");
+		for (int i = 0; i < filtersAttr.size(); i++) {
+			FiltersAttr obj = filtersAttr.get(i);
+			if (("fuzzy").equals(obj.getType())) {
+				builder.filter(QueryBuilders.fuzzyQuery(obj.getField(),
+						obj.getText()));
+			} else if (("term").equals(obj.getType())) {
+				builder.filter(QueryBuilders.termQuery(obj.getField(),
+						obj.getText()));
+			}
+
+		}
+		response = client.prepareSearch(indices).setTypes(types)
+				.addAggregation(builder).setFrom(page.getStartIndex())
+				.setSize(page.getPageSize()).execute().actionGet();
+		return response;
+	}
 }

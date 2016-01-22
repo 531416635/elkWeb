@@ -62,7 +62,6 @@
 			data:{name:name,input:input1Value},
             success: function(data){
             	var str=eval('('+data+')');
-            alert(str);
             	var result="";
             	for ( var i in str) {
             		var str1=eval('('+str[i]+')')
