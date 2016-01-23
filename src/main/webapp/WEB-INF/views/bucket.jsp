@@ -120,6 +120,19 @@
 
 		});
 	}
+
+	function netseAggs() {
+		$.ajax({
+			dataType : "text",
+			async : false,
+			type : "POST",
+			url : "nestedAccount",
+			success : function(data) {
+				alert("查询嵌套结果为：" + data);
+			}
+
+		});
+	}
 </script>
 </head>
 <body>
@@ -193,7 +206,14 @@
 			<option value="lastname">lastname</option>
 			<option value="state">state</option>
 		</select>
-		<button id="filterbutton" onclick="missingAggs();">查询</button>
+		<button onclick="missingAggs();">查询</button>
+	</div>
+	<div>
+		<span style="color: red;">netse aggs:</span>
+		<button onclick="netseAggs();">查询</button>
+		<br /> <span>问题描述：在es中有一个product的产品类型，它里面有一个嵌套的resellers经销商字段，一个商品会有多个经销商，使用netse
+			aggs可以查询对应的产品的经销商数量</span>
+
 	</div>
 
 	<div>&nbsp;</div>

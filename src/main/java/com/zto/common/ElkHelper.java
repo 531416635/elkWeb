@@ -27,6 +27,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.missing.MissingBuilder;
+import org.elasticsearch.search.aggregations.bucket.nested.NestedBuilder;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.MinBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -257,16 +258,27 @@ public class ElkHelper implements InitializingBean {
 	}
 
 	/**
+	 * missing aggregation 某个字段若是没有值，则为missing
 	 * 
 	 * @param page
 	 * @param filtersAttr
-	 * @return
+	 * @return SearchResponse
 	 */
 	public SearchResponse missing(Page page, String str) {
-		MissingBuilder builder = AggregationBuilders.missing("missing").field(str);
+		MissingBuilder builder = AggregationBuilders.missing("missing").field(
+				str);
 		SearchResponse response = client.prepareSearch(indices).setTypes(types)
 				.addAggregation(builder).setFrom(page.getStartIndex())
 				.setSize(page.getPageSize()).execute().actionGet();
 		return response;
 	}
+	
+	public SearchResponse nestedAggs(Page page) {
+		NestedBuilder builder = AggregationBuilders.nested("agg").path("resellers");
+		SearchResponse response = client.prepareSearch("qiantao").setTypes("product")
+				.addAggregation(builder).setFrom(page.getStartIndex())
+				.setSize(page.getPageSize()).execute().actionGet();
+		return response;
+	}
+	
 }

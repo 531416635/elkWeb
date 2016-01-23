@@ -15,6 +15,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.filters.Filters;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
+import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,6 +108,19 @@ public class BController {
 		page.setPageSize(1000);
 		SearchResponse response = helper.missing(page, str);
 		Missing agg = response.getAggregations().get("missing");
+		result = agg.getDocCount() + "";
+		return result;
+
+	}
+
+	@RequestMapping("/nestedAccount")
+	@ResponseBody
+	public String nestedAccount(Page page) {
+		String result = "";
+		page.setStartIndex(0);
+		page.setPageSize(1000);
+		SearchResponse response = helper.nestedAggs(page);
+		Nested agg = response.getAggregations().get("agg");
 		result = agg.getDocCount() + "";
 		return result;
 
