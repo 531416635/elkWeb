@@ -10,8 +10,8 @@ public class Account {
 	private String employer;
 	private String firstname;
 	private String gender;// 性别
-	private long grade;// 年龄
-	private String lastname;
+	/*private long grade;// 评分，等级
+*/	private String lastname;
 	private String state;
 
 	public long getAccount_number() {
@@ -86,13 +86,13 @@ public class Account {
 		this.gender = gender;
 	}
 
-	public long getGrade() {
+	/*public long getGrade() {
 		return grade;
 	}
 
 	public void setGrade(long grade) {
 		this.grade = grade;
-	}
+	}*/
 
 	public String getLastname() {
 		return lastname;
@@ -116,7 +116,7 @@ public class Account {
 				+ address + ", age=" + age + ", balance=" + balance + ", city="
 				+ city + ", email=" + email + ", employer=" + employer
 				+ ", firstname=" + firstname + ", gender=" + gender
-				+ ", grade=" + grade + ", lastname=" + lastname + ", state="
+				/*+ ", grade=" + grade*/ + ", lastname=" + lastname + ", state="
 				+ state + "]";
 	}
 

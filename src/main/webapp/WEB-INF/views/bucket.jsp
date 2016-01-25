@@ -156,7 +156,7 @@
 			<option value="employer">雇主</option>
 			<option value="firstname">firstname</option>
 			<option value="gender">性别</option>
-			<option value="grade">年龄</option>
+			<!-- <option value="grade">年龄</option> -->
 			<option value="lastname">lastname</option>
 			<option value="state">state</option>
 		</select> 类型：<select id="typeselect">

@@ -75,7 +75,7 @@
 					+"<td>"+str1.employer+"</td>"
 					+"<td>"+str1.firstname+"</td>"
 					+"<td>"+str1.gender+"</td>"
-					+"<td>"+str1.grade+"</td>"
+					/* +"<td>"+str1.grade+"</td>" */
 					+"<td>"+str1.lastname+"</td>"
 					+"<td>"+str1.state+"</td>"
 					+"<td><button id='del"+str1.account_number +"'"
@@ -108,37 +108,37 @@
 				<td bgcolor="red">本页面内</td>
 				<td width="150px">年龄</td>
 				<td width="150px">薪水</td>
-				<td width="150px">级别</td>
+				<!-- <td width="150px">级别</td> -->
 			</tr>
 			<tr>
 				<td>最大值</td>
 				<td>${maxList.ageMax }</td>
 				<td>${maxList.balanceMax }</td>
-				<td>${maxList.gradeMax }</td>
+				<%-- <td>${maxList.gradeMax }</td> --%>
 			</tr>
 			<tr>
 				<td>最小值</td>
 				<td>${minList.ageMin }</td>
 				<td>${minList.balanceMin }</td>
-				<td>${minList.gradeMin }</td>
+				<%-- <td>${minList.gradeMin }</td> --%>
 			</tr>
 			<tr>
 				<td>平均值</td>
 				<td>${avgList.ageAvg }</td>
 				<td>${avgList.balanceAvg }</td>
-				<td>${avgList.gradeAvg }</td>
+			<%-- 	<td>${avgList.gradeAvg }</td> --%>
 			</tr>
 			<tr>
 				<td>总个数</td>
 				<td>${countList.ageCount }</td>
 				<td>${countList.balanceCount }</td>
-				<td>${countList.gradeCount }</td>
+				<%-- <td>${countList.gradeCount }</td> --%>
 			</tr>
 			<tr>
 				<td>总和</td>
 				<td>${sumList.ageSum }</td>
 				<td>${sumList.balanceSum }</td>
-				<td>${sumList.gradeSum }</td>
+			<%-- 	<td>${sumList.gradeSum }</td> --%>
 			</tr>
 		</table>
 	</div>
@@ -154,7 +154,7 @@
 			<th>雇主</th>
 			<th>firstname</th>
 			<th>性别</th>
-			<th>级别</th>
+			<!-- <th>级别</th> -->
 			<th>lastname</th>
 			<th>state</th>
 			<th>操作</th>
@@ -171,7 +171,7 @@
 					<td>${account.employer }</td>
 					<td>${account.firstname }</td>
 					<td>${account.gender }</td>
-					<td>${account.grade }</td>
+				<%-- 	<td>${account.grade }</td> --%>
 					<td>${account.lastname }</td>
 					<td>${account.state }</td>
 					<td><button id="del${account.account_number }"
